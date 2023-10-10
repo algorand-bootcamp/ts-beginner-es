@@ -22,6 +22,29 @@ switch create_NoOp NOT_IMPLEMENTED NOT_IMPLEMENTED NOT_IMPLEMENTED NOT_IMPLEMENT
 NOT_IMPLEMENTED:
 	err
 
+// createApplication()void
+abi_route_createApplication:
+	// execute createApplication()void
+	callsub createApplication
+	int 1
+	return
+
+createApplication:
+	proto 0 0
+
+	// contracts/dao.algo.ts:9
+	// this.proposal.value = 'Propuesta uno'
+	byte "proposal"
+	byte "Propuesta uno"
+	dup
+	len
+	itob
+	extract 6 2
+	swap
+	concat
+	app_global_put
+	retsub
+
 // getProposal()string
 abi_route_getProposal:
 	// execute getProposal()string
@@ -32,9 +55,11 @@ abi_route_getProposal:
 getProposal:
 	proto 0 0
 
-	// contracts/dao.algo.ts:6
-	// return 'Propuesta uno';
-	byte "Propuesta uno"
+	// contracts/dao.algo.ts:13
+	// return this.proposal.value;
+	byte "proposal"
+	app_global_get
+	extract 2 0
 	dup
 	len
 	itob
@@ -46,10 +71,6 @@ getProposal:
 	concat
 	log
 	retsub
-
-abi_route_createApplication:
-	int 1
-	return
 
 create_NoOp:
 	method "createApplication()void"
