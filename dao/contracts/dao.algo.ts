@@ -5,8 +5,8 @@ class Dao extends Contract {
 
   proposal = GlobalStateKey<string>();
 
-  createApplication(): void {
-    this.proposal.value = 'Propuesta uno';
+  createApplication(proposal: string): void {
+    this.proposal.value = proposal;
   }
 
   getProposal(): string {

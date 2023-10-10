@@ -13,6 +13,8 @@ let appClient: DaoClient;
 describe('Dao', () => {
   beforeEach(fixture.beforeEach);
 
+  const proposal = 'Nueva propuesta';
+
   beforeAll(async () => {
     await fixture.beforeEach();
     const { algod, testAccount } = fixture.context;
@@ -27,11 +29,11 @@ describe('Dao', () => {
       algod,
     );
 
-    await appClient.create.createApplication({});
+    await appClient.create.createApplication({proposal});
   });
 
   test('getProposal', async () => {
-    const proposal = await appClient.getProposal({});
-    expect(proposal.return?.valueOf()).toBe('Propuesta uno');
+    const proposalFromMethod = await appClient.getProposal({});
+    expect(proposalFromMethod.return?.valueOf()).toBe(proposal);
   });
 });
