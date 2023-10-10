@@ -18,11 +18,29 @@
       }
     },
     {
+      "name": "vote",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
       "name": "getProposal",
       "args": [],
       "desc": "",
       "returns": {
         "type": "string",
+        "desc": ""
+      }
+    },
+    {
+      "name": "getVotes",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
         "desc": ""
       }
     }

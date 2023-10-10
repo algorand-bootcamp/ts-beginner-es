@@ -36,4 +36,10 @@ describe('Dao', () => {
     const proposalFromMethod = await appClient.getProposal({});
     expect(proposalFromMethod.return?.valueOf()).toBe(proposal);
   });
+
+  test('voting', async () => {
+    await appClient.vote({});
+    const totalVotesFromMethod = await appClient.getVotes({});
+    expect(totalVotesFromMethod.return?.valueOf()).toBe(BigInt(1));
+  })
 });

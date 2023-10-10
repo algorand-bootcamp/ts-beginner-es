@@ -36,7 +36,7 @@ abi_route_createApplication:
 createApplication:
 	proto 1 0
 
-	// contracts/dao.algo.ts:9
+	// contracts/dao.algo.ts:10
 	// this.proposal.value = proposal
 	byte "proposal"
 	frame_dig -1 // proposal: bytes
@@ -46,6 +46,26 @@ createApplication:
 	extract 6 2
 	swap
 	concat
+	app_global_put
+	retsub
+
+// vote()void
+abi_route_vote:
+	// execute vote()void
+	callsub vote
+	int 1
+	return
+
+vote:
+	proto 0 0
+
+	// contracts/dao.algo.ts:14
+	// this.totalVotes.value = this.totalVotes.value + 1
+	byte "totalVotes"
+	byte "totalVotes"
+	app_global_get
+	int 1
+	+
 	app_global_put
 	retsub
 
@@ -59,7 +79,7 @@ abi_route_getProposal:
 getProposal:
 	proto 0 0
 
-	// contracts/dao.algo.ts:13
+	// contracts/dao.algo.ts:18
 	// return this.proposal.value;
 	byte "proposal"
 	app_global_get
@@ -76,6 +96,27 @@ getProposal:
 	log
 	retsub
 
+// getVotes()uint64
+abi_route_getVotes:
+	// execute getVotes()uint64
+	callsub getVotes
+	int 1
+	return
+
+getVotes:
+	proto 0 0
+
+	// contracts/dao.algo.ts:22
+	// return this.totalVotes.value;
+	byte "totalVotes"
+	app_global_get
+	itob
+	byte 0x151f7c75
+	swap
+	concat
+	log
+	retsub
+
 create_NoOp:
 	method "createApplication(string)void"
 	txna ApplicationArgs 0
@@ -83,7 +124,9 @@ create_NoOp:
 	err
 
 call_NoOp:
+	method "vote()void"
 	method "getProposal()string"
+	method "getVotes()uint64"
 	txna ApplicationArgs 0
-	match abi_route_getProposal
+	match abi_route_vote abi_route_getProposal abi_route_getVotes
 	err
