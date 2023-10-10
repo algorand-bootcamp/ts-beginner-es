@@ -36,7 +36,7 @@ abi_route_createApplication:
 createApplication:
 	proto 1 0
 
-	// contracts/dao.algo.ts:10
+	// contracts/dao.algo.ts:11
 	// this.proposal.value = proposal
 	byte "proposal"
 	frame_dig -1 // proposal: bytes
@@ -49,17 +49,22 @@ createApplication:
 	app_global_put
 	retsub
 
-// vote()void
+// vote(bool)void
 abi_route_vote:
-	// execute vote()void
+	// inFavor: bool
+	txna ApplicationArgs 1
+	int 0
+	getbit
+
+	// execute vote(bool)void
 	callsub vote
 	int 1
 	return
 
 vote:
-	proto 0 0
+	proto 1 0
 
-	// contracts/dao.algo.ts:14
+	// contracts/dao.algo.ts:15
 	// this.totalVotes.value = this.totalVotes.value + 1
 	byte "totalVotes"
 	byte "totalVotes"
@@ -67,6 +72,24 @@ vote:
 	int 1
 	+
 	app_global_put
+
+	// if0_condition
+	// contracts/dao.algo.ts:16
+	// inFavor
+	frame_dig -1 // inFavor: bool
+	bz if0_end
+
+	// if0_consequent
+	// contracts/dao.algo.ts:16
+	// this.favorVotes.value = this.favorVotes.value + 1
+	byte "favorVotes"
+	byte "favorVotes"
+	app_global_get
+	int 1
+	+
+	app_global_put
+
+if0_end:
 	retsub
 
 // getProposal()string
@@ -79,7 +102,7 @@ abi_route_getProposal:
 getProposal:
 	proto 0 0
 
-	// contracts/dao.algo.ts:18
+	// contracts/dao.algo.ts:20
 	// return this.proposal.value;
 	byte "proposal"
 	app_global_get
@@ -96,9 +119,9 @@ getProposal:
 	log
 	retsub
 
-// getVotes()uint64
+// getVotes()(uint64,uint64)
 abi_route_getVotes:
-	// execute getVotes()uint64
+	// execute getVotes()(uint64,uint64)
 	callsub getVotes
 	int 1
 	return
@@ -106,11 +129,21 @@ abi_route_getVotes:
 getVotes:
 	proto 0 0
 
-	// contracts/dao.algo.ts:22
-	// return this.totalVotes.value;
+	// contracts/dao.algo.ts:24
+	// return [this.totalVotes.value, this.favorVotes.value];
+	byte 0x // initial head
+	byte 0x // initial tail
+	byte 0x0010 // initial head offset
 	byte "totalVotes"
 	app_global_get
 	itob
+	callsub process_static_tuple_element
+	byte "favorVotes"
+	app_global_get
+	itob
+	callsub process_static_tuple_element
+	pop // pop head offset
+	concat // concat head and tail
 	byte 0x151f7c75
 	swap
 	concat
@@ -124,9 +157,18 @@ create_NoOp:
 	err
 
 call_NoOp:
-	method "vote()void"
+	method "vote(bool)void"
 	method "getProposal()string"
-	method "getVotes()uint64"
+	method "getVotes()(uint64,uint64)"
 	txna ApplicationArgs 0
 	match abi_route_vote abi_route_getProposal abi_route_getVotes
 	err
+
+process_static_tuple_element:
+	proto 4 3
+	frame_dig -4 // tuple head
+	frame_dig -1 // element
+	concat
+	frame_dig -3 // tuple tail
+	frame_dig -2 // head offset
+	retsub

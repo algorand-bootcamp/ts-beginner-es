@@ -19,7 +19,13 @@
     },
     {
       "name": "vote",
-      "args": [],
+      "args": [
+        {
+          "name": "inFavor",
+          "type": "bool",
+          "desc": ""
+        }
+      ],
       "desc": "",
       "returns": {
         "type": "void",
@@ -40,7 +46,7 @@
       "args": [],
       "desc": "",
       "returns": {
-        "type": "uint64",
+        "type": "(uint64,uint64)",
         "desc": ""
       }
     }
