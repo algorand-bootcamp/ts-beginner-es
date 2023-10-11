@@ -208,6 +208,27 @@ getVotes:
 	log
 	retsub
 
+// getRegisteredAsa()uint64
+abi_route_getRegisteredAsa:
+	// execute getRegisteredAsa()uint64
+	callsub getRegisteredAsa
+	int 1
+	return
+
+getRegisteredAsa:
+	proto 0 0
+
+	// contracts/dao.algo.ts:38
+	// return this.registeredAsa.value;
+	byte "registeredAsa"
+	app_global_get
+	itob
+	byte 0x151f7c75
+	swap
+	concat
+	log
+	retsub
+
 create_NoOp:
 	method "createApplication(string)void"
 	txna ApplicationArgs 0
@@ -219,8 +240,9 @@ call_NoOp:
 	method "vote(bool)void"
 	method "getProposal()string"
 	method "getVotes()(uint64,uint64)"
+	method "getRegisteredAsa()uint64"
 	txna ApplicationArgs 0
-	match abi_route_bootstrap abi_route_vote abi_route_getProposal abi_route_getVotes
+	match abi_route_bootstrap abi_route_vote abi_route_getProposal abi_route_getVotes abi_route_getRegisteredAsa
 	err
 
 process_static_tuple_element:

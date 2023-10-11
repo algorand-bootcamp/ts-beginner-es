@@ -58,6 +58,15 @@
         "type": "(uint64,uint64)",
         "desc": ""
       }
+    },
+    {
+      "name": "getRegisteredAsa",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
     }
   ]
 }

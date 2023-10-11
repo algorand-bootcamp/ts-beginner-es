@@ -34,4 +34,8 @@ class Dao extends Contract {
     return [this.totalVotes.value, this.favorVotes.value];
   } 
 
+  getRegisteredAsa(): Asset {
+    return this.registeredAsa.value;
+  }
+
 }

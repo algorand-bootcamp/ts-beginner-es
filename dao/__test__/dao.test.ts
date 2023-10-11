@@ -52,6 +52,11 @@ describe('Dao', () => {
     }
   })
 
+  test('getRegisteredAsa', async () => {
+    const asaFromMethod = await appClient.getRegisteredAsa({});
+    expect(asaFromMethod.return?.valueOf()).toBe(registeredAsa);
+  });
+
   test('getProposal', async () => {
     const proposalFromMethod = await appClient.getProposal({});
     expect(proposalFromMethod.return?.valueOf()).toBe(proposal);
