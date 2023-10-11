@@ -36,7 +36,7 @@ abi_route_createApplication:
 createApplication:
 	proto 1 0
 
-	// contracts/dao.algo.ts:11
+	// contracts/dao.algo.ts:12
 	// this.proposal.value = proposal
 	byte "proposal"
 	frame_dig -1 // proposal: bytes
@@ -47,6 +47,64 @@ createApplication:
 	swap
 	concat
 	app_global_put
+	retsub
+
+// bootstrap()uint64
+abi_route_bootstrap:
+	byte 0x // push empty bytes to fill the stack frame for this subroutine's local variables
+
+	// execute bootstrap()uint64
+	callsub bootstrap
+	int 1
+	return
+
+bootstrap:
+	proto 1 0
+
+	// contracts/dao.algo.ts:16
+	// registeredAsa = sendAssetCreation({
+	//       configAssetTotal: 1_000,
+	//       configAssetFreeze: this.app.address
+	//     })
+	itxn_begin
+	int acfg
+	itxn_field TypeEnum
+
+	// contracts/dao.algo.ts:17
+	// configAssetTotal: 1_000
+	int 1_000
+	itxn_field ConfigAssetTotal
+
+	// contracts/dao.algo.ts:18
+	// configAssetFreeze: this.app.address
+	txna Applications 0
+	app_params_get AppAddress
+	assert
+	itxn_field ConfigAssetFreeze
+
+	// Fee field not set, defaulting to 0
+	int 0
+	itxn_field Fee
+
+	// Submit inner transaction
+	itxn_submit
+	itxn CreatedAssetID
+	frame_bury -1 // registeredAsa: asset
+
+	// contracts/dao.algo.ts:20
+	// this.registeredAsa.value = registeredAsa
+	byte "registeredAsa"
+	frame_dig -1 // registeredAsa: asset
+	app_global_put
+
+	// contracts/dao.algo.ts:21
+	// return registeredAsa;
+	frame_dig -1 // registeredAsa: asset
+	itob
+	byte 0x151f7c75
+	swap
+	concat
+	log
 	retsub
 
 // vote(bool)void
@@ -64,7 +122,7 @@ abi_route_vote:
 vote:
 	proto 1 0
 
-	// contracts/dao.algo.ts:15
+	// contracts/dao.algo.ts:25
 	// this.totalVotes.value = this.totalVotes.value + 1
 	byte "totalVotes"
 	byte "totalVotes"
@@ -74,13 +132,13 @@ vote:
 	app_global_put
 
 	// if0_condition
-	// contracts/dao.algo.ts:16
+	// contracts/dao.algo.ts:26
 	// inFavor
 	frame_dig -1 // inFavor: bool
 	bz if0_end
 
 	// if0_consequent
-	// contracts/dao.algo.ts:16
+	// contracts/dao.algo.ts:26
 	// this.favorVotes.value = this.favorVotes.value + 1
 	byte "favorVotes"
 	byte "favorVotes"
@@ -102,7 +160,7 @@ abi_route_getProposal:
 getProposal:
 	proto 0 0
 
-	// contracts/dao.algo.ts:20
+	// contracts/dao.algo.ts:30
 	// return this.proposal.value;
 	byte "proposal"
 	app_global_get
@@ -129,7 +187,7 @@ abi_route_getVotes:
 getVotes:
 	proto 0 0
 
-	// contracts/dao.algo.ts:24
+	// contracts/dao.algo.ts:34
 	// return [this.totalVotes.value, this.favorVotes.value];
 	byte 0x // initial head
 	byte 0x // initial tail
@@ -157,11 +215,12 @@ create_NoOp:
 	err
 
 call_NoOp:
+	method "bootstrap()uint64"
 	method "vote(bool)void"
 	method "getProposal()string"
 	method "getVotes()(uint64,uint64)"
 	txna ApplicationArgs 0
-	match abi_route_vote abi_route_getProposal abi_route_getVotes
+	match abi_route_bootstrap abi_route_vote abi_route_getProposal abi_route_getVotes
 	err
 
 process_static_tuple_element:

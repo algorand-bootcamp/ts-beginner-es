@@ -18,6 +18,15 @@
       }
     },
     {
+      "name": "bootstrap",
+      "args": [],
+      "desc": "",
+      "returns": {
+        "type": "uint64",
+        "desc": ""
+      }
+    },
+    {
       "name": "vote",
       "args": [
         {

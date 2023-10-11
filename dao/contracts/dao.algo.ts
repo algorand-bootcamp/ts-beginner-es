@@ -6,9 +6,19 @@ class Dao extends Contract {
   proposal = GlobalStateKey<string>();
   totalVotes = GlobalStateKey<number>();
   favorVotes = GlobalStateKey<number>();
+  registeredAsa = GlobalStateKey<Asset>();
 
   createApplication(proposal: string): void {
     this.proposal.value = proposal;
+  }
+
+  bootstrap(): Asset {
+    const registeredAsa = sendAssetCreation({
+      configAssetTotal: 1_000,
+      configAssetFreeze: this.app.address
+    })
+    this.registeredAsa.value = registeredAsa;
+    return registeredAsa;
   }
 
   vote(inFavor: boolean): void {
