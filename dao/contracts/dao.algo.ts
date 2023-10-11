@@ -26,7 +26,7 @@ class Dao extends Contract {
   register(registeredAsa: Asset): void {
     // Verificamos que el solicitante no tenga el asset aun
     assert(this.txn.sender.assetBalance(this.registeredAsa.value) === 0)
-    
+
     // Enviar asset al miembro que se registre
     sendAssetTransfer({
       xferAsset: this.registeredAsa.value,
@@ -42,7 +42,8 @@ class Dao extends Contract {
     })
   }
 
-  vote(inFavor: boolean): void {
+  vote(inFavor: boolean, registeredAsa: Asset): void {
+    assert(this.txn.sender.assetBalance(this.registeredAsa.value) >= 1)
     this.totalVotes.value = this.totalVotes.value + 1;
     if (inFavor) this.favorVotes.value = this.favorVotes.value + 1;
   }

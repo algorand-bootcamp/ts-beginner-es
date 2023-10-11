@@ -70,6 +70,10 @@ describe('Dao', () => {
     })).rejects.toThrow();
   })
 
+  test('votar sin asset', async() => {
+    await expect(appClient.vote({inFavor: true, registeredAsa })).rejects.toThrow()
+  })
+
   test('register', async() => {
     try {
 
@@ -107,13 +111,13 @@ describe('Dao', () => {
   });
 
   test('voto a favor', async () => {
-    await appClient.vote({ inFavor: true });
+    await appClient.vote({ inFavor: true, registeredAsa }, { sender });
     const totalVotesFromMethod = await appClient.getVotes({});
     expect(totalVotesFromMethod.return?.valueOf()).toEqual([BigInt(1), BigInt(1)]);
   })
 
   test('voto en contra', async () => {
-    await appClient.vote({ inFavor: false });
+    await appClient.vote({ inFavor: false, registeredAsa }, { sender });
     const totalVotesFromMethod = await appClient.getVotes({});
     expect(totalVotesFromMethod.return?.valueOf()).toEqual([BigInt(2), BigInt(1)]);
   })
