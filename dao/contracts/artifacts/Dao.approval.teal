@@ -62,6 +62,25 @@ bootstrap:
 	proto 1 0
 
 	// contracts/dao.algo.ts:16
+	// verify sender
+	txn Sender
+	txna Applications 0
+	app_params_get AppCreator
+	assert
+	==
+	assert
+
+	// contracts/dao.algo.ts:17
+	// assert(!this.registeredAsa.exists)
+	txna Applications 0
+	byte "registeredAsa"
+	app_global_get_ex
+	swap
+	pop
+	!
+	assert
+
+	// contracts/dao.algo.ts:18
 	// registeredAsa = sendAssetCreation({
 	//       configAssetTotal: 1_000,
 	//       configAssetFreeze: this.app.address
@@ -70,12 +89,12 @@ bootstrap:
 	int acfg
 	itxn_field TypeEnum
 
-	// contracts/dao.algo.ts:17
+	// contracts/dao.algo.ts:19
 	// configAssetTotal: 1_000
 	int 1_000
 	itxn_field ConfigAssetTotal
 
-	// contracts/dao.algo.ts:18
+	// contracts/dao.algo.ts:20
 	// configAssetFreeze: this.app.address
 	txna Applications 0
 	app_params_get AppAddress
@@ -91,13 +110,13 @@ bootstrap:
 	itxn CreatedAssetID
 	frame_bury -1 // registeredAsa: asset
 
-	// contracts/dao.algo.ts:20
+	// contracts/dao.algo.ts:22
 	// this.registeredAsa.value = registeredAsa
 	byte "registeredAsa"
 	frame_dig -1 // registeredAsa: asset
 	app_global_put
 
-	// contracts/dao.algo.ts:21
+	// contracts/dao.algo.ts:23
 	// return registeredAsa;
 	frame_dig -1 // registeredAsa: asset
 	itob
@@ -122,7 +141,7 @@ abi_route_vote:
 vote:
 	proto 1 0
 
-	// contracts/dao.algo.ts:25
+	// contracts/dao.algo.ts:27
 	// this.totalVotes.value = this.totalVotes.value + 1
 	byte "totalVotes"
 	byte "totalVotes"
@@ -132,13 +151,13 @@ vote:
 	app_global_put
 
 	// if0_condition
-	// contracts/dao.algo.ts:26
+	// contracts/dao.algo.ts:28
 	// inFavor
 	frame_dig -1 // inFavor: bool
 	bz if0_end
 
 	// if0_consequent
-	// contracts/dao.algo.ts:26
+	// contracts/dao.algo.ts:28
 	// this.favorVotes.value = this.favorVotes.value + 1
 	byte "favorVotes"
 	byte "favorVotes"
@@ -160,7 +179,7 @@ abi_route_getProposal:
 getProposal:
 	proto 0 0
 
-	// contracts/dao.algo.ts:30
+	// contracts/dao.algo.ts:32
 	// return this.proposal.value;
 	byte "proposal"
 	app_global_get
@@ -187,7 +206,7 @@ abi_route_getVotes:
 getVotes:
 	proto 0 0
 
-	// contracts/dao.algo.ts:34
+	// contracts/dao.algo.ts:36
 	// return [this.totalVotes.value, this.favorVotes.value];
 	byte 0x // initial head
 	byte 0x // initial tail
@@ -218,7 +237,7 @@ abi_route_getRegisteredAsa:
 getRegisteredAsa:
 	proto 0 0
 
-	// contracts/dao.algo.ts:38
+	// contracts/dao.algo.ts:40
 	// return this.registeredAsa.value;
 	byte "registeredAsa"
 	app_global_get

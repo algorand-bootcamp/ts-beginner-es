@@ -9,6 +9,8 @@ import { DaoClient } from '../contracts/clients/DaoClient';
 const fixture = algorandFixture();
 
 let appClient: DaoClient;
+let sender: algosdk.Account;
+let registeredAsa: bigint
 
 describe('Dao', () => {
   beforeEach(fixture.beforeEach);
@@ -17,8 +19,7 @@ describe('Dao', () => {
 
   beforeAll(async () => {
     await fixture.beforeEach();
-    const { algod, testAccount } = fixture.context;
-    const sender = algosdk.generateAccount();
+    const { algod, testAccount, kmd } = fixture.context;
 
     appClient = new DaoClient(
       {
@@ -29,27 +30,41 @@ describe('Dao', () => {
       algod,
     );
 
+    sender = await algokit.getOrCreateKmdWalletAccount({
+      name: 'not-creator',
+      fundWith: algokit.algos(10)
+    }, algod, kmd)
+
     await appClient.create.createApplication({proposal});
   });
 
-  
-  let registeredAsa: bigint
+  test('bootstrap no creador', async() => {
+    await expect(appClient.bootstrap({}, { 
+      sender,
+      sendParams: { 
+        fee: algokit.microAlgos(2_000) 
+      } 
+    })).rejects.toThrow();
+  })
 
   test('bootstrap', async() => {
     // Enviamos fondos al contrato para cubrir balance minimo
     await appClient.appClient.fundAppAccount(algokit.microAlgos(200_000));
-    try {
-      // Hacemos que nuestra transaccion cubra la comision de la transaccion interna
-      const bootstrapResult = await appClient.bootstrap({}, { 
-        sendParams: { 
-          fee: algokit.microAlgos(2_000) 
-        } 
-      });
-      registeredAsa = bootstrapResult.return!.valueOf();
-    } catch(e) {
-      console.warn(e);
-      throw e;
-    }
+    // Hacemos que nuestra transaccion cubra la comision de la transaccion interna
+    const bootstrapResult = await appClient.bootstrap({}, { 
+      sendParams: { 
+        fee: algokit.microAlgos(2_000) 
+      } 
+    });
+    registeredAsa = bootstrapResult.return!.valueOf();
+  })
+
+  test('bootstrap doble', async() => {
+    await expect(appClient.bootstrap({}, { 
+      sendParams: { 
+        fee: algokit.microAlgos(2_000) 
+      } 
+    })).rejects.toThrow();
   })
 
   test('getRegisteredAsa', async () => {
