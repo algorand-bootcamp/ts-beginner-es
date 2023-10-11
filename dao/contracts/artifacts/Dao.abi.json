@@ -27,6 +27,21 @@
       }
     },
     {
+      "name": "register",
+      "args": [
+        {
+          "name": "registeredAsa",
+          "type": "asset",
+          "desc": ""
+        }
+      ],
+      "desc": "",
+      "returns": {
+        "type": "void",
+        "desc": ""
+      }
+    },
+    {
       "name": "vote",
       "args": [
         {

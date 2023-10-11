@@ -10,7 +10,9 @@ const fixture = algorandFixture();
 
 let appClient: DaoClient;
 let sender: algosdk.Account;
-let registeredAsa: bigint
+let registeredAsa: bigint;
+let algod: algosdk.Algodv2;
+
 
 describe('Dao', () => {
   beforeEach(fixture.beforeEach);
@@ -19,7 +21,8 @@ describe('Dao', () => {
 
   beforeAll(async () => {
     await fixture.beforeEach();
-    const { algod, testAccount, kmd } = fixture.context;
+    const { testAccount, kmd } = fixture.context;
+    algod = fixture.context.algod;
 
     appClient = new DaoClient(
       {
@@ -65,6 +68,32 @@ describe('Dao', () => {
         fee: algokit.microAlgos(2_000) 
       } 
     })).rejects.toThrow();
+  })
+
+  test('register', async() => {
+    try {
+
+      const optinTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        from: sender.addr,
+        to: sender.addr,
+        amount: 0,
+        suggestedParams: await algokit.getTransactionParams(undefined, algod),
+        assetIndex: Number(registeredAsa)
+      })
+      await algokit.sendTransaction({ from: sender, transaction: optinTxn }, algod);
+
+
+      // Modificamos el fee para cubrir el transfer de asset y el asset freeze
+      await appClient.register({ registeredAsa }, {
+        sender,
+        sendParams: {
+          fee: algokit.microAlgos(3_000)
+        }
+      })
+    } catch(e) {
+      console.warn(e);
+      throw e;
+    }
   })
 
   test('getRegisteredAsa', async () => {
