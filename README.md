@@ -18,6 +18,10 @@ Si quieres ir a una versión o paso específico del curso solo debes escribir `g
 4. v103 - Propuesta variable
 5. v104 - Función de votación simple
 6. v105 - Función de votación a favor o en contra
+7. v106 - Creación simple de Asset
+8. v107 - Creación de asset con asserts y verificaciones
+9. v108 - Envío de assets a miembros
+10. v109 - Votación restringida por assets
 
 Lo recomendable es que inicies con el tag `v101`, escribiendo `git checkout v101`
 
