@@ -4,7 +4,7 @@ import { PeraWalletConnect } from '@perawallet/connect'
 import { PROVIDER_ID, ProvidersArray, WalletProvider, useInitializeProviders, useWallet } from '@txnlab/use-wallet'
 import algosdk from 'algosdk'
 import { SnackbarProvider } from 'notistack'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ConnectWallet from './components/ConnectWallet'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
 import { DaoClient } from './contracts/DaoClient'
@@ -40,6 +40,8 @@ if (import.meta.env.VITE_ALGOD_NETWORK === '') {
 export default function App() {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
   const { activeAddress } = useWallet()
+  const [appId, setAppId] = useState<number>(0)
+  const [proposal, setProposal] = useState<string>('')
 
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
@@ -57,10 +59,30 @@ export default function App() {
   const typedClient = new DaoClient(
     {
       resolveBy: 'id',
-      id: 0,
+      id: appId,
     },
     algod,
   );
+
+  const getProposal = async() => {
+    try {
+      const state = await typedClient.getGlobalState()
+      setProposal(state.proposal!.asString())  
+    } catch (e) {
+      console.warn(e)
+      setProposal('ID de aplicación NO valido')
+    }
+    
+  }
+
+  useEffect(() => {
+    if (appId === 0) {
+      setProposal("Ingrese un app ID para ver la propuesta")
+      return
+    }
+    getProposal()
+  }, [appId])
+
 
   const walletProviders = useInitializeProviders({
     providers: providersArray,
@@ -94,12 +116,22 @@ export default function App() {
                 </button>
                 <div className="divider" />
 
-                {activeAddress && (
+                <h1 className='font-bold'>ID del app de DAO:</h1>
+                <input 
+                  type='number' 
+                  className='input input-bordered m-2'
+                  value={appId}
+                  onChange={(e) => setAppId(Number(e.currentTarget.value) || 0)}
+                />
+                <textarea className='textarea textarea-bordered m-2' value={proposal}></textarea>
+
+                {activeAddress && appId ===0 && (
                   <DaoCreateApplication
                     buttonClass="btn m-2"
                     buttonLoadingNode=<span className="loading loading-spinner" />
                     buttonNode="Call createApplication"
                     typedClient={typedClient}
+                    setAppId={setAppId}
                   />
                 )}
               </div>
