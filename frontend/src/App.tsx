@@ -100,7 +100,6 @@ export default function App() {
                     buttonLoadingNode=<span className="loading loading-spinner" />
                     buttonNode="Call createApplication"
                     typedClient={typedClient}
-                    proposal="Propuesta de latam"
                   />
                 )}
               </div>
