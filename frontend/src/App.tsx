@@ -6,8 +6,10 @@ import algosdk from 'algosdk'
 import { SnackbarProvider } from 'notistack'
 import { useState } from 'react'
 import ConnectWallet from './components/ConnectWallet'
-import Transact from './components/Transact'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
+import { DaoClient } from './contracts/DaoClient'
+import * as algokit from '@algorandfoundation/algokit-utils';
+import DaoCreateApplication from './components/DaoCreateApplication'
 
 let providersArray: ProvidersArray
 if (import.meta.env.VITE_ALGOD_NETWORK === '') {
@@ -37,18 +39,28 @@ if (import.meta.env.VITE_ALGOD_NETWORK === '') {
 
 export default function App() {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
-  const [openDemoModal, setOpenDemoModal] = useState<boolean>(false)
   const { activeAddress } = useWallet()
 
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
   }
 
-  const toggleDemoModal = () => {
-    setOpenDemoModal(!openDemoModal)
-  }
 
   const algodConfig = getAlgodConfigFromViteEnvironment()
+
+  const algod = algokit.getAlgoClient({
+    server: algodConfig.server,
+    port: algodConfig.port,
+    token: algodConfig.token
+  })
+
+  const typedClient = new DaoClient(
+    {
+      resolveBy: 'id',
+      id: 0,
+    },
+    algod,
+  );
 
   const walletProviders = useInitializeProviders({
     providers: providersArray,
@@ -68,36 +80,32 @@ export default function App() {
           <div className="hero-content text-center rounded-lg p-6 max-w-md bg-white mx-auto">
             <div className="max-w-md">
               <h1 className="text-4xl">
-                Welcome to <div className="font-bold">AlgoKit 🙂</div>
+                Bienvenido al sistema de  <div className="font-bold">DAO 🙂</div>
               </h1>
               <p className="py-6">
-                This starter has been generated using official AlgoKit React template. Refer to the resource below for next steps.
+                Este es el proyecto del bootcamp beginner de Tealscript en español
               </p>
 
               <div className="grid">
-                <a
-                  data-test-id="getting-started"
-                  className="btn btn-primary m-2"
-                  target="_blank"
-                  href="https://github.com/algorandfoundation/algokit-cli"
-                >
-                  Getting started
-                </a>
 
-                <div className="divider" />
+                
                 <button data-test-id="connect-wallet" className="btn m-2" onClick={toggleWalletModal}>
                   Wallet Connection
                 </button>
+                <div className="divider" />
 
                 {activeAddress && (
-                  <button data-test-id="transactions-demo" className="btn m-2" onClick={toggleDemoModal}>
-                    Transactions Demo
-                  </button>
+                  <DaoCreateApplication
+                    buttonClass="btn m-2"
+                    buttonLoadingNode=<span className="loading loading-spinner" />
+                    buttonNode="Call createApplication"
+                    typedClient={typedClient}
+                    proposal="Propuesta de latam"
+                  />
                 )}
               </div>
 
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
-              <Transact openModal={openDemoModal} setModalState={setOpenDemoModal} />
             </div>
           </div>
         </div>

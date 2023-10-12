@@ -240,14 +240,14 @@ vote:
 	proto 2 0
 
 	// contracts/dao.algo.ts:46
-	// assert(this.txn.sender.assetBalance(this.registeredAsa.value) === 1)
+	// assert(this.txn.sender.assetBalance(this.registeredAsa.value) >= 1)
 	txn Sender
 	byte "registeredAsa"
 	app_global_get
 	asset_holding_get AssetBalance
 	assert
 	int 1
-	==
+	>=
 	assert
 
 	// contracts/dao.algo.ts:47
