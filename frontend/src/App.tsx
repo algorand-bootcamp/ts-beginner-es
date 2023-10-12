@@ -10,6 +10,8 @@ import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } fr
 import { DaoClient } from './contracts/DaoClient'
 import * as algokit from '@algorandfoundation/algokit-utils';
 import DaoCreateApplication from './components/DaoCreateApplication'
+import DaoRegister from './components/DaoRegister'
+import AlgodClient from 'algosdk/dist/types/client/v2/algod/algod'
 
 let providersArray: ProvidersArray
 if (import.meta.env.VITE_ALGOD_NETWORK === '') {
@@ -42,11 +44,13 @@ export default function App() {
   const { activeAddress } = useWallet()
   const [appId, setAppId] = useState<number>(0)
   const [proposal, setProposal] = useState<string>('')
+  const [registeredAsa, setRegisteredAsa] = useState<number>(0)
+  const [registered, setRegistered] = useState<boolean>(false)
+
 
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
   }
-
 
   const algodConfig = getAlgodConfigFromViteEnvironment()
 
@@ -64,10 +68,22 @@ export default function App() {
     algod,
   );
 
-  const getProposal = async() => {
+  const setState = async() => {
     try {
       const state = await typedClient.getGlobalState()
-      setProposal(state.proposal!.asString())  
+      setProposal(state.proposal!.asString())
+      const asa = state.registeredAsa?.asNumber() || 0
+      setRegisteredAsa(asa) 
+      
+      try {
+        const assetInfo = await algod.accountAssetInformation(activeAddress!, asa).do()
+        setRegistered(assetInfo['asset-holding'].amount === 1)
+      } catch (e) {
+        console.warn(e)
+        setRegistered(false)
+      }
+    
+      
     } catch (e) {
       console.warn(e)
       setProposal('ID de aplicación NO valido')
@@ -80,7 +96,7 @@ export default function App() {
       setProposal("Ingrese un app ID para ver la propuesta")
       return
     }
-    getProposal()
+    setState()
   }, [appId])
 
 
@@ -134,6 +150,18 @@ export default function App() {
                     setAppId={setAppId}
                   />
                 )}
+
+              {activeAddress && appId !==0 && registeredAsa !==0 && !registered && (
+                <DaoRegister
+                  buttonClass="btn m-2"
+                  buttonLoadingNode=<span className="loading loading-spinner" />
+                  buttonNode="Call register"
+                  typedClient={typedClient}
+                  registeredAsa={registeredAsa}
+                  algodClient={algod}
+                  setState={setState}
+                />
+              )}
               </div>
 
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
