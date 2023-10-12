@@ -12,6 +12,7 @@ import * as algokit from '@algorandfoundation/algokit-utils';
 import DaoCreateApplication from './components/DaoCreateApplication'
 import DaoRegister from './components/DaoRegister'
 import AlgodClient from 'algosdk/dist/types/client/v2/algod/algod'
+import DaoVote from './components/DaoVote'
 
 let providersArray: ProvidersArray
 if (import.meta.env.VITE_ALGOD_NETWORK === '') {
@@ -46,6 +47,8 @@ export default function App() {
   const [proposal, setProposal] = useState<string>('')
   const [registeredAsa, setRegisteredAsa] = useState<number>(0)
   const [registered, setRegistered] = useState<boolean>(false)
+  const [votesInFavor, setVotesInfavor] = useState<number>(0)
+  const [votesTotal, setVotesTotal] = useState<number>(0)
 
 
   const toggleWalletModal = () => {
@@ -74,6 +77,8 @@ export default function App() {
       setProposal(state.proposal!.asString())
       const asa = state.registeredAsa?.asNumber() || 0
       setRegisteredAsa(asa) 
+      setVotesInfavor(state.favorVotes?.asNumber() || 0)
+      setVotesTotal(state.totalVotes?.asNumber() || 0)
       
       try {
         const assetInfo = await algod.accountAssetInformation(activeAddress!, asa).do()
@@ -162,6 +167,38 @@ export default function App() {
                   setState={setState}
                 />
               )}
+
+            {activeAddress && appId !==0 && registeredAsa !==0 && (
+              <p>
+                {votesInFavor} / {votesTotal}
+              </p>
+              )}
+              {activeAddress && appId !==0 && registeredAsa !==0 && registered && (
+                <DaoVote
+                buttonClass="btn m-2"
+                buttonLoadingNode=<span className="loading loading-spinner" />
+                buttonNode="Voto en contra"
+                typedClient={typedClient}
+                inFavor={false}
+                registeredAsa={registeredAsa}
+                setState={setState}
+              />
+              )}
+
+            {activeAddress && appId !==0 && registeredAsa !==0 && registered && (
+                <DaoVote
+                buttonClass="btn m-2"
+                buttonLoadingNode=<span className="loading loading-spinner" />
+                buttonNode="Voto a favor"
+                typedClient={typedClient}
+                inFavor={true}
+                registeredAsa={registeredAsa}
+                setState={setState}
+              />
+              )}
+
+
+
               </div>
 
               <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
