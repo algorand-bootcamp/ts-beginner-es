@@ -36,4 +36,4 @@ Lo recomendable es que inicies con el tag `v101`, escribiendo `git checkout v101
 - Sesión #1 [Introducción a Algokit y TEALScript, tus herramientas clave en web3](https://www.youtube.com/watch?v=PqsSVob5Yno)
 - Sesión #2 [Contrato base de la DAO y conceptos técnicos de Algorand](https://youtu.be/_0fBMn7r9GY)
 - Sesión #3 [Finalizando nuestro contrato de DAO](https://youtu.be/b_qExfS0AHQ?feature=shared)
-- Sesión #4 Implementando un cliente con React
+- Sesión #4 [Implementando un cliente con React](https://youtu.be/JT-aznbcRJ4)
